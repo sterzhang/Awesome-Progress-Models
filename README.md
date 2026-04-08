@@ -1,7 +1,7 @@
 <div align="center">
     <h1 style="display: inline-flex; align-items: center;">
-        <img src="img/static/icon.png" alt="icon" style="width: 32px; height: 32px; margin-right: 8px;">
-        The Latent Space: Foundation, Evolution, Mechanism, Ability, and Outlook
+        <!-- <img src="img/static/icon.png" alt="icon" style="width: 32px; height: 32px; margin-right: 8px;"> -->
+        Progress Models
     </h1>
 </div>
 
@@ -20,9 +20,9 @@ This repository manually collects works in **Progress Models**, which will be co
 
 
 ## 📖 News
-**[2026/05/04]** We release our survey: [The Latent Space: Foundation, Evolution, Mechanism, Ability, and Outlook](https://arxiv.org/pdf/2604.02029)!
+<!-- **[2026/05/04]** We release our survey: [The Latent Space: Foundation, Evolution, Mechanism, Ability, and Outlook](https://arxiv.org/pdf/2604.02029)! -->
 
-[![Star History Chart](https://api.star-history.com/svg?repos=YU-deep/Awesome-Latent-Space&type=Date)](https://star-history.com/#YU-deep/Awesome-Latent-Space&Date)
+<!-- [![Star History Chart](https://api.star-history.com/svg?repos=YU-deep/Awesome-Latent-Space&type=Date)](https://star-history.com/#YU-deep/Awesome-Latent-Space&Date) -->
 
 ## 🌟 Overview
 - [📖 News](#-news)
