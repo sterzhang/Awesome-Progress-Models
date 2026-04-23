@@ -1,0 +1,17 @@
+ROBOREWARD: GENERAL-PURPOSE VISIONLANGUAGE REWARD MODELS FOR ROBOTIC: https://arxiv.org/abs/2601.00675
+LiFT: Unsupervised Reinforcement Learning with Foundation Models as Teachers: https://arxiv.org/abs/2312.08958
+VICtoR: Learning Hierarchical Vision-Instruction Correlation Rewards for Long-horizon Manipulation: https://arxiv.org/abs/2405.16545
+“Task Success” Is Not Enough: Investigating the Use of Video-Language Models as Behavior Critics for Catching Undesirable Agent Behaviors: https://arxiv.org/abs/2402.04210
+Can Foundation Models Perform Zero-Shot Task Specification for Robot Manipulation?: https://arxiv.org/abs/2204.11134
+ELEMENTAL: Interactive Learning from Demonstrations and Vision-Language Models for Reward Design in Robotics: https://arxiv.org/abs/2411.18825
+End-to-End Robotic Reinforcement Learning without Reward Engineering: https://arxiv.org/abs/1904.07854
+Learning Generalizable Robotic Reward Functions from “In-the-Wild” Human Videos: https://arxiv.org/abs/2103.16817
+Learning Language-Conditioned Robot Behavior from Offline Data and Crowd-Sourced Annotation: https://arxiv.org/abs/2109.01115
+MineDojo: Building Open-Ended Embodied Agents with Internet-Scale Knowledge: https://arxiv.org/abs/2206.08853
+PEARL: Zero-Shot Cross-Task Preference Alignment and Robust Reward Learning for Robotic Manipulation: https://arxiv.org/abs/2306.03615
+R3M: A Universal Visual Representation for Robot Manipulation: https://arxiv.org/abs/2203.12601
+Robotic Offline RL from Internet Videos via Value-Function Pre-Training: https://arxiv.org/abs/2309.13041
+Robot Fine-Tuning Made Easy: Pre-Training Rewards and Policies for Autonomous Real-World Reinforcement Learning: https://arxiv.org/abs/2310.15145
+Scaling Data-Driven Robotics with Reward Sketching and Batch Reinforcement Learning: https://arxiv.org/abs/1909.12200
+Subtask-Aware Visual Reward Learning from Segmented Demonstrations: https://arxiv.org/abs/2502.20630
+Unsupervised Perceptual Rewards for Imitation Learning: https://arxiv.org/abs/1612.06699
