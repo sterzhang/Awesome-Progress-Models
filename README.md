@@ -1,13 +1,12 @@
 <div align="center">
 
-# Progress Reward Models for Robotic Learning
+# Progress Reward Modeling for Robotic Learning
 
-**A curated, survey-aligned map of progress, process, value, and reward models for robot learning.**
+**A survey-aligned map of how robots can tell whether they are moving forward, standing still, or undoing progress.**
 
-![Survey aligned](https://img.shields.io/static/v1?label=&message=Survey%20aligned&color=2563eb&style=for-the-badge)
+![Survey source](https://img.shields.io/static/v1?label=&message=Survey%20source&color=2563eb&style=for-the-badge)
 ![44 cited papers](https://img.shields.io/static/v1?label=&message=44%20cited%20papers&color=16a34a&style=for-the-badge)
-![BibTeX included](https://img.shields.io/static/v1?label=&message=BibTeX%20included&color=f59e0b&style=for-the-badge)
-![Venue badges](https://img.shields.io/static/v1?label=&message=Venue%20badges&color=7c3aed&style=for-the-badge)
+![2017–2026](https://img.shields.io/static/v1?label=&message=2017%E2%80%932026&color=f59e0b&style=for-the-badge)
 ![PRs welcome](https://img.shields.io/static/v1?label=&message=PRs%20welcome&color=0f766e&style=for-the-badge)
 
 [![Awesome](https://awesome.re/badge-flat.svg)](https://awesome.re)
@@ -16,39 +15,78 @@
 
 </div>
 
-This repository tracks papers cited by **Progress Reward Model for Robotic Learning: A Comprehensive Survey**. The list is organized around the survey's core formulation:
+This is the companion repository for **Progress Reward Modeling for Robotic Learning: A Comprehensive Survey**. It keeps the survey taxonomy, figures, references, and an explorable paper gallery in one place.
 
-<p align="center"><b>progress signal = f(evidence, goal)</b></p>
+<p align="center"><b>progress signal = f(task evidence, task goal)</b></p>
 
-A progress model is not just another reward network. It decides whether the current behavior is moving the task forward, staying static, or undoing previous progress under a task goal.
+A terminal success label only says whether the task finished. A progress model asks the harder question during execution: <em>is the robot advancing, stagnating, or regressing under the current goal?</em>
 
+<p align="center">
+  <a href="#survey-at-a-glance"><b>Survey map</b></a> ·
+  <a href="#paper-gallery"><b>Paper gallery</b></a> ·
+  <a href="#citation"><b>Citation</b></a> ·
+  <a href="CONTRIBUTING.md"><b>Contribute</b></a>
+</p>
+
+<p align="center">
+  <img src="img/survey/evolution.png" width="100%" alt="Evolution of progress reward modeling from 2017 to 2026">
+</p>
+
+## Survey at a Glance
+
+The paper follows one continuous path from definition to evidence. The README mirrors that path so every section can be traced back to the source.
+
+| Survey layer | Question | Organization used in the paper |
+|---|---|---|
+| **1 · Interface** | What does the model receive and return? | current-state representation · task-goal specification · output form |
+| **2 · Methods** | Where does the progress signal come from? | frozen foundation models · temporal/relative supervision · instruction tuning · programmatic rewards |
+| **3 · Data & benchmarks** | How is supervision produced, and what does evaluation prove? | human-driven · human-in-the-loop · automated; fidelity · robustness/generalization · downstream utility |
+| **4 · Limitations** | What still breaks in realistic use? | weak temporal assumptions · partial observability · calibration/generalization · closed-loop reliability |
 
 ## Quick Navigation
 
 | Section | What to look for |
 |---|---|
-| [Taxonomy](#taxonomy) | The survey logic: input interface, goal interface, output signal, and construction mechanism. |
+| [Interface](#interface) | The exact input/output design space from the survey. |
+| [Construction paradigms](#construction-paradigms) | The four method families used in the paper. |
 | [Paper Gallery](#paper-gallery) | Color-coded papers with venue, method tags, previews, code/project links, and BibTeX. |
-| [Benchmark Lens](#benchmark-lens) | What each kind of benchmark actually validates. |
+| [Data & Benchmark Lens](#data--benchmark-lens) | How labels are built and what each evaluation actually validates. |
+| [Limitations](#open-problems) | The paper's deployment-relevant open problems. |
 
-## Taxonomy
+## Interface
 
-![Process RM](https://img.shields.io/static/v1?label=&message=Process%20RM&color=2563eb&style=for-the-badge) ![Foundation scorer](https://img.shields.io/static/v1?label=&message=Foundation%20scorer&color=7c3aed&style=for-the-badge) ![Temporal / repr.](https://img.shields.io/static/v1?label=&message=Temporal%20%2F%20repr.&color=0891b2&style=for-the-badge) ![Preference](https://img.shields.io/static/v1?label=&message=Preference&color=f59e0b&style=for-the-badge) ![Programmatic](https://img.shields.io/static/v1?label=&message=Programmatic&color=16a34a&style=for-the-badge)
+<p align="center">
+  <img src="img/survey/interface.png" width="100%" alt="Interface taxonomy of progress models">
+</p>
 
-| Design axis | Choices in the literature | Why it matters |
+| Design axis | Choices in the paper | Core trade-off |
 |---|---|---|
-| **Evidence** | single observation, temporal window, before-after pair, full trajectory, simulator/API state | Determines whether the model can handle ambiguity, regression, and long-horizon history. |
-| **Goal** | language, goal image, demonstration, symbolic predicate, executable task description | Defines what counts as progress. The same state can be progress for one task and regression for another. |
-| **Output** | progress score, progress delta, success probability, ranking/preference, reward code | Determines whether the signal is useful for monitoring, reranking, planning, or RL. |
-| **Supervision** | temporal order, scalar labels, preferences, stage boundaries, counterfactuals, generated code | Determines what assumption turns raw robot/video data into progress supervision. |
+| **Current task state** | single observation · temporal context · relational comparison · state/API access | More context resolves ambiguity, but increases latency and weakens online usability. |
+| **Task goal** | language · goal image or demonstration · structured/programmatic goal | Richer grounding reduces ambiguity, but needs more curation or privileged state. |
+| **Model output** | state-wise score · progress delta · ranking · executable reward function | The output determines whether the model naturally fits monitoring, comparison, planning, or RL. |
+
+> The same half-open drawer can be progress for “open the drawer” and regression for “close the drawer.” Progress is task-conditioned, not an intrinsic property of an image.
+
+## Construction Paradigms
+
+<p align="center">
+  <img src="img/survey/methods.png" width="100%" alt="Four paradigms for constructing progress rewards">
+</p>
+
+| Paradigm | Signal source | Strength | Main caveat |
+|---|---|---|---|
+| **Frozen foundation-model scoring** | image-text similarity, token probability, in-context value judgment | zero-shot use | semantic prior is not automatically a calibrated reward |
+| **Temporal / relative supervision** | demonstration order, proximity, preferences, rankings | scalable weak supervision | time is not always progress; comparisons still need scalarization |
+| **Instruction-tuned progress prediction** | explicit progress, success, delta, preference, or reasoning targets | dedicated progress capability | requires well-grounded targets and coverage of failures/regressions |
+| **Programmatic reward construction** | generated code, predicates, features, APIs | interpretable and editable | only as faithful as the available state and task decomposition |
 
 ## Paper Gallery
 
 Each row includes venue status, method tags, visual preview when available, code/project links, and a collapsible BibTeX block.
 
-### ![Process RM](https://img.shields.io/static/v1?label=&message=Process%20RM&color=2563eb&style=for-the-badge) Fine-Tuned Progress and Process Reward Models
+### 1 · ![Process RM](https://img.shields.io/static/v1?label=&message=Process%20RM&color=2563eb&style=for-the-badge) Instruction-Tuned Progress Prediction
 
-Direct progress/process supervision, stage-aware rewards, progress deltas, and progress-aware robot learning.
+Models explicitly trained to follow progress-related instructions: absolute progress, task success, signed deltas, preferences, or reasoning-grounded scores.
 
 | Date / Venue | Paper + Tags | Preview | Links | Citation |
 |---|---|---|---|---|
@@ -66,9 +104,9 @@ Direct progress/process supervision, stage-aware rewards, progress deltas, and p
 | 2025/02<br>![ICLR'25](https://img.shields.io/static/v1?label=&message=ICLR'25&color=d946ef&style=flat-square) | [**Subtask-Aware Visual Reward Learning from Segmented Demonstrations**](https://arxiv.org/abs/2502.20630)<br>![Process RM](https://img.shields.io/static/v1?label=&message=Process%20RM&color=2563eb&style=for-the-badge)<br>![stage aware](https://img.shields.io/static/v1?label=&message=stage%20aware&color=9333ea&style=flat-square)<br>![video reward](https://img.shields.io/static/v1?label=&message=video%20reward&color=0891b2&style=flat-square) | <img width="220" alt="preview" src="img/2502_reds.png"> | [![Code](https://img.shields.io/static/v1?label=&message=Code&color=181717&style=flat-square&logo=github&logoColor=white)](https://github.com/csmile-1006/REDS_agent) | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@inproceedings{kim2025subtask,<br>  title={Subtask-Aware Visual Reward Learning from Segmented Demonstrations},<br>  author={Kim, Changyeon and Heo, Minho and Lee, Doohyun and Lee, Honglak and Shin, Jinwoo and Lim, Joseph J. and Lee, Kimin},<br>  booktitle={The Thirteenth International Conference on Learning Representations},<br>  year={2025},<br>  url={https://openreview.net/forum?id=mqKVe6F3Up}<br>}</code></pre></details> |
 | 2024/05<br>![ICLR'25](https://img.shields.io/static/v1?label=&message=ICLR'25&color=d946ef&style=flat-square) | [**VICtoR: Learning Hierarchical Vision-Instruction Correlation Rewards for Long-horizon Manipulation**](https://arxiv.org/abs/2405.16545)<br>![Process RM](https://img.shields.io/static/v1?label=&message=Process%20RM&color=2563eb&style=for-the-badge)<br>![stage aware](https://img.shields.io/static/v1?label=&message=stage%20aware&color=9333ea&style=flat-square)<br>![VLM reward](https://img.shields.io/static/v1?label=&message=VLM%20reward&color=7c3aed&style=flat-square)<br>![progress score](https://img.shields.io/static/v1?label=&message=progress%20score&color=2563eb&style=flat-square) | <img width="220" alt="preview" src="img/2405_victor.png"> | [![Code](https://img.shields.io/static/v1?label=&message=Code&color=181717&style=flat-square&logo=github&logoColor=white)](https://github.com/cmlab-victor/victor-code) | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@inproceedings{hung2025victor,<br>  title={VICtoR: Learning Hierarchical Vision-Instruction Correlation Rewards for Long-horizon Manipulation},<br>  author={Hung, Kuo-Han and Lo, Pang-Chi and Yeh, Jia-Fong and Hsu, Han-Yuan and Chen, Yi-Ting and Hsu, Winston H.},<br>  booktitle={The Thirteenth International Conference on Learning Representations},<br>  year={2025},<br>  url={https://openreview.net/forum?id=UpQLu9bzAR}<br>}</code></pre></details> |
 
-### ![Foundation scorer](https://img.shields.io/static/v1?label=&message=Foundation%20scorer&color=7c3aed&style=for-the-badge) Foundation-Model Scoring and Success Criticism
+### 2 · ![Foundation scorer](https://img.shields.io/static/v1?label=&message=Foundation%20scorer&color=7c3aed&style=for-the-badge) Frozen Foundation Models as Semantic Scorers
 
-Frozen or lightly adapted VLM/foundation-model scoring for reward, success, value, and behavior criticism.
+Zero-shot or in-context signals extracted from pretrained VLM/foundation models for reward, success, value, temporal progress, and behavior criticism.
 
 | Date / Venue | Paper + Tags | Preview | Links | Citation |
 |---|---|---|---|---|
@@ -82,7 +120,7 @@ Frozen or lightly adapted VLM/foundation-model scoring for reward, success, valu
 | 2022/07<br>![ICML'22](https://img.shields.io/static/v1?label=&message=ICML'22&color=f59e0b&style=flat-square) | [**Zero-Shot Reward Specification via Grounded Natural Language**](https://proceedings.mlr.press/v162/mahmoudieh22a.html)<br>![Foundation scorer](https://img.shields.io/static/v1?label=&message=Foundation%20scorer&color=7c3aed&style=for-the-badge)<br>![VLM reward](https://img.shields.io/static/v1?label=&message=VLM%20reward&color=7c3aed&style=flat-square)<br>![success critic](https://img.shields.io/static/v1?label=&message=success%20critic&color=dc2626&style=flat-square) | <img width="220" alt="preview" src="img/2207_zero_shot_reward_specification.png"> | - | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@inproceedings{pmlr-v162-mahmoudieh22a,<br>  title={Zero-Shot Reward Specification via Grounded Natural Language},<br>  author={Mahmoudieh, Parsa and Pathak, Deepak and Darrell, Trevor},<br>  booktitle={Proceedings of the 39th International Conference on Machine Learning},<br>  pages={14743--14752},<br>  year={2022},<br>  editor={Chaudhuri, Kamalika and Jegelka, Stefanie and Song, Le and Szepesvari, Csaba and Niu, Gang and Sabato, Sivan},<br>  volume={162},<br>  series={Proceedings of Machine Learning Research},<br>  month={17--23 Jul},<br>  publisher={PMLR},<br>  url={https://proceedings.mlr.press/v162/mahmoudieh22a.html}<br>}</code></pre></details> |
 | 2022/04<br>![L4DC'22](https://img.shields.io/static/v1?label=&message=L4DC'22&color=0891b2&style=flat-square) | [**Can Foundation Models Perform Zero-Shot Task Specification for Robot Manipulation?**](https://arxiv.org/abs/2204.11134)<br>![Foundation scorer](https://img.shields.io/static/v1?label=&message=Foundation%20scorer&color=7c3aed&style=for-the-badge)<br>![VLM reward](https://img.shields.io/static/v1?label=&message=VLM%20reward&color=7c3aed&style=flat-square)<br>![success critic](https://img.shields.io/static/v1?label=&message=success%20critic&color=dc2626&style=flat-square) | <img width="220" alt="preview" src="img/2204_zest.png"> | [![Project](https://img.shields.io/static/v1?label=&message=Project&color=0f766e&style=flat-square)](https://sites.google.com/view/zestproject) | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@inproceedings{pmlr-v168-cui22a,<br>  title={Can Foundation Models Perform Zero-Shot Task Specification For Robot Manipulation?},<br>  author={Cui, Yuchen and Niekum, Scott and Gupta, Abhinav and Kumar, Vikash and Rajeswaran, Aravind},<br>  booktitle={Proceedings of The 4th Annual Learning for Dynamics and Control Conference},<br>  pages={893--905},<br>  year={2022},<br>  volume={168},<br>  series={Proceedings of Machine Learning Research},<br>  publisher={PMLR},<br>  url={https://proceedings.mlr.press/v168/cui22a.html}<br>}</code></pre></details> |
 
-### ![Temporal / repr.](https://img.shields.io/static/v1?label=&message=Temporal%20%2F%20repr.&color=0891b2&style=for-the-badge) Temporal, Video, and Representation-Based Rewards
+### 3 · ![Temporal / repr.](https://img.shields.io/static/v1?label=&message=Temporal%20%2F%20repr.&color=0891b2&style=for-the-badge) Learning from Temporal and Relative Supervision
 
 Temporal order, passive video, goal proximity, value-like representations, and learned visual features.
 
@@ -99,7 +137,7 @@ Temporal order, passive video, goal proximity, value-like representations, and l
 | 2021/03<br>![arXiv'21](https://img.shields.io/static/v1?label=&message=arXiv'21&color=b91c1c&style=flat-square) | [**Learning Generalizable Robotic Reward Functions from "In-The-Wild" Human Videos**](https://arxiv.org/abs/2103.16817)<br>![Temporal / repr.](https://img.shields.io/static/v1?label=&message=Temporal%20%2F%20repr.&color=0891b2&style=for-the-badge)<br>![video reward](https://img.shields.io/static/v1?label=&message=video%20reward&color=0891b2&style=flat-square)<br>![progress score](https://img.shields.io/static/v1?label=&message=progress%20score&color=2563eb&style=flat-square) | <img width="220" alt="preview" src="img/2103_dvd_reward.png"> | [![Code](https://img.shields.io/static/v1?label=&message=Code&color=181717&style=flat-square&logo=github&logoColor=white)](https://github.com/anniesch/dvd) | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@misc{chen2021learninggeneralizableroboticreward,<br>  title={Learning Generalizable Robotic Reward Functions from "In-The-Wild" Human Videos},<br>  author={Annie S. Chen and Suraj Nair and Chelsea Finn},<br>  year={2021},<br>  eprint={2103.16817},<br>  archivePrefix={arXiv},<br>  primaryClass={cs.RO},<br>  url={https://arxiv.org/abs/2103.16817},<br>}</code></pre></details> |
 | 2016/12<br>![RSS'17](https://img.shields.io/static/v1?label=&message=RSS'17&color=475569&style=flat-square) | [**Unsupervised Perceptual Rewards for Imitation Learning**](https://arxiv.org/abs/1612.06699)<br>![Temporal / repr.](https://img.shields.io/static/v1?label=&message=Temporal%20%2F%20repr.&color=0891b2&style=for-the-badge)<br>![representation](https://img.shields.io/static/v1?label=&message=representation&color=475569&style=flat-square)<br>![progress score](https://img.shields.io/static/v1?label=&message=progress%20score&color=2563eb&style=flat-square) | <img width="220" alt="preview" src="img/1612_perceptual_rewards.png"> | [![Project](https://img.shields.io/static/v1?label=&message=Project&color=0f766e&style=flat-square)](https://sermanet.github.io/rewards/) | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@misc{sermanet2017unsupervisedperceptualrewardsimitation,<br>  title={Unsupervised Perceptual Rewards for Imitation Learning},<br>  author={Pierre Sermanet and Kelvin Xu and Sergey Levine},<br>  year={2017},<br>  eprint={1612.06699},<br>  archivePrefix={arXiv},<br>  primaryClass={cs.CV},<br>  url={https://arxiv.org/abs/1612.06699},<br>}</code></pre></details> |
 
-### ![Preference](https://img.shields.io/static/v1?label=&message=Preference&color=f59e0b&style=for-the-badge) Preference, Contrastive, and Human-Feedback Rewards
+#### Relative branch · ![Preference](https://img.shields.io/static/v1?label=&message=Preference&color=f59e0b&style=for-the-badge) Preference, Contrastive, and Human-Feedback Rewards
 
 Relative judgments, contrastive goals, endpoint labels, reward sketches, and human/crowd feedback.
 
@@ -113,7 +151,7 @@ Relative judgments, contrastive goals, endpoint labels, reward sketches, and hum
 | 2019/09<br>![RSS'20](https://img.shields.io/static/v1?label=&message=RSS'20&color=475569&style=flat-square) | [**Scaling Data-Driven Robotics with Reward Sketching and Batch Reinforcement Learning**](https://arxiv.org/abs/1909.12200)<br>![Preference](https://img.shields.io/static/v1?label=&message=Preference&color=f59e0b&style=for-the-badge)<br>![human feedback](https://img.shields.io/static/v1?label=&message=human%20feedback&color=be123c&style=flat-square)<br>![preference](https://img.shields.io/static/v1?label=&message=preference&color=f59e0b&style=flat-square)<br>![robot RL](https://img.shields.io/static/v1?label=&message=robot%20RL&color=0369a1&style=flat-square) | <img width="220" alt="preview" src="img/1909_reward_sketching.png"> | [![Project](https://img.shields.io/static/v1?label=&message=Project&color=0f766e&style=flat-square)](https://sites.google.com/view/data-driven-robotics/) | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@misc{cabi2020scalingdatadrivenroboticsreward,<br>  title={Scaling data-driven robotics with reward sketching and batch reinforcement learning},<br>  author={Serkan Cabi and Sergio G{\'o}mez Colmenarejo and Alexander Novikov and Ksenia Konyushkova and Scott Reed and Rae Jeong and Konrad Zolna and Yusuf Aytar and David Budden and Mel Vecerik and Oleg Sushkov and David Barker and Jonathan Scholz and Misha Denil and Nando de Freitas and Ziyu Wang},<br>  year={2020},<br>  eprint={1909.12200},<br>  archivePrefix={arXiv},<br>  primaryClass={cs.RO},<br>  url={https://arxiv.org/abs/1909.12200},<br>}</code></pre></details> |
 | 2019/04<br>![RSS'19](https://img.shields.io/static/v1?label=&message=RSS'19&color=475569&style=flat-square) | [**End-to-End Robotic Reinforcement Learning without Reward Engineering**](https://arxiv.org/abs/1904.07854)<br>![Preference](https://img.shields.io/static/v1?label=&message=Preference&color=f59e0b&style=for-the-badge)<br>![success critic](https://img.shields.io/static/v1?label=&message=success%20critic&color=dc2626&style=flat-square)<br>![robot RL](https://img.shields.io/static/v1?label=&message=robot%20RL&color=0369a1&style=flat-square) | <img width="220" alt="preview" src="img/1904_reward_learning_rl.png"> | [![Code](https://img.shields.io/static/v1?label=&message=Code&color=181717&style=flat-square&logo=github&logoColor=white)](https://github.com/avisingh599/reward-learning-rl) | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@misc{singh2019endtoendroboticreinforcementlearning,<br>  title={End-to-End Robotic Reinforcement Learning without Reward Engineering},<br>  author={Avi Singh and Larry Yang and Kristian Hartikainen and Chelsea Finn and Sergey Levine},<br>  year={2019},<br>  eprint={1904.07854},<br>  archivePrefix={arXiv},<br>  primaryClass={cs.LG},<br>  url={https://arxiv.org/abs/1904.07854},<br>}</code></pre></details> |
 
-### ![Programmatic](https://img.shields.io/static/v1?label=&message=Programmatic&color=16a34a&style=for-the-badge) Structured and Programmatic Reward Construction
+### 4 · ![Programmatic](https://img.shields.io/static/v1?label=&message=Programmatic&color=16a34a&style=for-the-badge) Programmatic Reward Construction
 
 Stage decomposition, symbolic interfaces, generated reward functions, and executable reward logic.
 
@@ -125,24 +163,60 @@ Stage decomposition, symbolic interfaces, generated reward functions, and execut
 | 2023/09<br>![ICLR'24 Spotlight](https://img.shields.io/static/v1?label=&message=ICLR'24%20Spotlight&color=a21caf&style=flat-square) | [**Text2Reward: Reward Shaping with Language Models for Reinforcement Learning**](https://arxiv.org/abs/2309.11489)<br>![Programmatic](https://img.shields.io/static/v1?label=&message=Programmatic&color=16a34a&style=for-the-badge)<br>![reward code](https://img.shields.io/static/v1?label=&message=reward%20code&color=16a34a&style=flat-square)<br>![robot RL](https://img.shields.io/static/v1?label=&message=robot%20RL&color=0369a1&style=flat-square) | <img width="220" alt="preview" src="img/2309_text2reward.png"> | [![Code](https://img.shields.io/static/v1?label=&message=Code&color=181717&style=flat-square&logo=github&logoColor=white)](https://github.com/xlang-ai/text2reward) | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@inproceedings{xietext2reward,<br>  title={Text2Reward: Reward Shaping with Language Models for Reinforcement Learning},<br>  author={Xie, Tianbao and Zhao, Siheng and Wu, Chen Henry and Liu, Yitao and Luo, Qian and Zhong, Victor and Yang, Yanchao and Yu, Tao},<br>  booktitle={The Twelfth International Conference on Learning Representations},<br>  year={2024},<br>  url={https://openreview.net/forum?id=tUM39YTRxH}<br>}</code></pre></details> |
 | 2023/06<br>![CoRL'23](https://img.shields.io/static/v1?label=&message=CoRL'23&color=7c3aed&style=flat-square) | [**Language to Rewards for Robotic Skill Synthesis**](https://proceedings.mlr.press/v229/yu23a.html)<br>![Programmatic](https://img.shields.io/static/v1?label=&message=Programmatic&color=16a34a&style=for-the-badge)<br>![reward code](https://img.shields.io/static/v1?label=&message=reward%20code&color=16a34a&style=flat-square)<br>![robot RL](https://img.shields.io/static/v1?label=&message=robot%20RL&color=0369a1&style=flat-square) | <img width="220" alt="preview" src="img/2306_language_to_rewards.png"> | [![Code](https://img.shields.io/static/v1?label=&message=Code&color=181717&style=flat-square&logo=github&logoColor=white)](https://github.com/google-deepmind/language_to_reward_2023) | <details><summary>bib.tex</summary><pre><code class="language-bibtex">@inproceedings{pmlr-v229-yu23a,<br>  title={Language to Rewards for Robotic Skill Synthesis},<br>  author={Yu, Wenhao and Gileadi, Nimrod and Fu, Chuyuan and Kirmani, Sean and Lee, Kuang-Huei and Gonzalez Arenas, Montserrat and Chiang, Hao-Tien Lewis and Erez, Tom and Hasenclever, Leonard and Humplik, Jan and Ichter, Brian and Xiao, Ted and Xu, Peng and Zeng, Andy and Zhang, Tingnan and Heess, Nicolas and Sadigh, Dorsa and Tan, Jie and Tassa, Yuval and Xia, Fei},<br>  booktitle={Proceedings of The 7th Conference on Robot Learning},<br>  pages={374--404},<br>  year={2023},<br>  editor={Tan, Jie and Toussaint, Marc and Darvish, Kourosh},<br>  volume={229},<br>  series={Proceedings of Machine Learning Research},<br>  publisher={PMLR},<br>  url={https://proceedings.mlr.press/v229/yu23a.html}<br>}</code></pre></details> |
 
-## Benchmark Lens
+## Data & Benchmark Lens
 
-| Benchmark claim | What it tests | Representative papers |
+<p align="center">
+  <img src="img/survey/data-benchmarks.png" width="100%" alt="Progress data construction and benchmark taxonomy">
+</p>
+
+### How progress supervision is constructed
+
+| Human involvement | Typical pipeline | Trade-off |
 |---|---|---|
-| ![scalar progress](https://img.shields.io/static/v1?label=&message=scalar%20progress&color=2563eb&style=flat-square) | calibrated progress labels, hop values, stage progress, or rubric scores | ProgressLM, RoboReward, SARM, ARM, Robo-Dopamine |
-| ![temporal consistency](https://img.shields.io/static/v1?label=&message=temporal%20consistency&color=0891b2&style=flat-square) | whether reward curves recover demonstration order or monotonic progress | GVL, OpenGVL, TOPReward, ReWiND, VLAC, Robo-Dopamine |
-| ![ranking](https://img.shields.io/static/v1?label=&message=ranking&color=f59e0b&style=flat-square) | whether states, clips, or trajectories are ordered correctly | Robometer, Rank2Reward, RL-VLM-F, PEARL |
-| ![instruction grounding](https://img.shields.io/static/v1?label=&message=instruction%20grounding&color=7c3aed&style=flat-square) | whether the model scores the intended task rather than generic motion | RoboReward, ReWiND, VLAC, GVL |
-| ![answerability](https://img.shields.io/static/v1?label=&message=answerability&color=6d28d9&style=flat-square) | whether the model detects insufficient evidence or ambiguous progress | ProgressLM, Recurrent Reasoning VLM |
-| ![downstream RL](https://img.shields.io/static/v1?label=&message=downstream%20RL&color=16a34a&style=flat-square) | whether the signal improves policy learning, planning, filtering, or reranking | RoboReward, Robometer, ReWiND, VLAC, Text2Reward, Eureka, Code as Reward |
+| **Human-driven** | teleoperation, human videos, scalar labels, success cutoffs, keyframes, reward sketches, comparisons | strongest semantic grounding; expensive and subjective |
+| **Human-in-the-loop** | sparse anchors, interpolation, model proposals with verification, active queries, prompt/API design | balances control and scale; sparse checks can miss systematic errors |
+| **Fully automated** | temporal order, simulator predicates, expert/noisy policies, VLM/LLM labels, synthetic reversals and failures | scales well; inherits simplifying assumptions and annotator bias |
 
+### What a benchmark can actually validate
+
+| Evaluation goal | What it tests | Representative evidence |
+|---|---|---|
+| **Progress fidelity** | Does the score represent advancement? | scalar calibration · temporal consistency · relative ordering · task grounding · uncertainty/answerability |
+| **Robustness & generalization** | Does that meaning survive distribution shift? | unseen tasks · new viewpoints/scenes · cross-embodiment transfer · non-monotonic execution |
+| **Downstream utility** | Is the signal useful for decision making? | online RL · offline relabeling · retrieval/reranking · planning/action selection |
+
+> A reward can improve policy learning without faithfully representing progress. Conversely, a calibrated progress estimator may still be too sparse, noisy, or expensive for closed-loop control. The survey treats fidelity and utility as separate claims.
+
+## Open Problems
+
+- **Weak temporal assumptions.** Later frames are not necessarily better under pauses, retries, regressions, or alternative strategies.
+- **Partial observability.** RGB alone may miss history, contact force, grasp stability, slipping, and other physical state.
+- **Generalization and calibration.** Scores often change meaning across tasks, views, scenes, and embodiments; uncertainty and abstention remain underdeveloped.
+- **Closed-loop reliability.** Automatic labels can be biased, learned rewards can be exploited, and frequent reward queries can be costly.
+
+## Repository Layout
+
+```text
+.
+├── README.md            # survey map + curated paper gallery
+├── img/                 # paper previews and README-ready figures
+└── CONTRIBUTING.md
+```
 
 ## Citation
 
-If you find this survey or repository helpful, a citation to our paper would be appreciated:
+Until archival release metadata is available, use this repository citation:
 
 ```bibtex
-TBD
+@misc{zhang2026progressrewardmodeling,
+  title  = {Progress Reward Modeling for Robotic Learning: A Comprehensive Survey},
+  author = {Zhang, Jianshu and Wu, Keliang and Lu, Haoran and Liu, Anbang and
+            Zhang, Ce and Yin, Weijie and Qian, Chengxuan and Yang, Xiyuan and
+            Pan, Zhenyu and Ye, Guo and Liu, Han},
+  year   = {2026},
+  note   = {Survey manuscript},
+  url    = {https://github.com/sterzhang/Awesome-Progress-Models}
+}
 ```
 
 ## Contributing

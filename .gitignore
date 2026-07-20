@@ -1,0 +1,12 @@
+.DS_Store
+blog/
+paper_src/
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex
+*.synctex.gz
