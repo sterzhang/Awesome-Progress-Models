@@ -56,8 +56,6 @@ The paper follows one continuous path from definition to evidence. The README mi
 | **Task goal** | language · goal image or demonstration · structured/programmatic goal | Richer grounding reduces ambiguity, but needs more curation or privileged state. |
 | **Model output** | state-wise score · progress delta · ranking · executable reward function | The output determines whether the model naturally fits monitoring, comparison, planning, or RL. |
 
-> The same half-open drawer can be progress for “open the drawer” and regression for “close the drawer.” Progress is task-conditioned, not an intrinsic property of an image.
-
 ## Construction Paradigms
 
 <p align="center">
