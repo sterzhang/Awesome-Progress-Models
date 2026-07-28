@@ -5,11 +5,11 @@
 **A survey-aligned map of how robots can tell whether they are moving forward, standing still, or undoing progress.**
 
 [![Awesome](https://awesome.re/badge-flat.svg)](https://awesome.re)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Paper-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/papers/2607.21655)
 [![arXiv](https://img.shields.io/badge/arXiv-2607.21655-B31B1B?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2607.21655)
 [![GitHub](https://img.shields.io/badge/GitHub-Repo-181717?logo=github&logoColor=white)](https://github.com/sterzhang/Awesome-Progress-Models)
 [![GitHub stars](https://img.shields.io/github/stars/sterzhang/Awesome-Progress-Models?style=social)](https://github.com/sterzhang/Awesome-Progress-Models/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 </div>
 
