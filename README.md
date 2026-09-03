@@ -2,7 +2,7 @@
 
 # Progress Reward Modeling for Robotic Learning
 
-**A survey-aligned map of how robots can tell whether they are moving forward, standing still, or undoing progress.**
+**(Still Actively Updating🔥) A survey-aligned map of how robots can tell whether they are moving forward, standing still, or undoing progress.**
 
 [![Awesome](https://awesome.re/badge-flat.svg)](https://awesome.re)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Paper-FFD21E?logo=huggingface)](https://huggingface.co/papers/2607.21655)
